@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
+import android.os.Environment;
 
 public class UserInfo {
 
@@ -19,7 +20,10 @@ public class UserInfo {
 			// 将用户名和密码合并为字符串
 			String userinfo = username + "##" + password;
 			// 得到软件的私有目录
-			String path = context.getFilesDir().getPath();
+			// String path = context.getFilesDir().getPath();
+
+			// 得到SD卡的目录
+			String path = Environment.getExternalStorageDirectory().getPath();
 
 			// 创建文件
 			File file = new File(path, "userinfo.txt");
@@ -39,8 +43,11 @@ public class UserInfo {
 	public static Map<String, String> getUserInfo(Context context) {
 
 		try {
-			// 得到私有目录
-			String path = context.getFilesDir().getPath();
+			// 得到软件私有目录
+			// String path = context.getFilesDir().getPath();
+
+			// 得到SD卡的目录
+			String path = Environment.getExternalStorageDirectory().getPath();
 			File file = new File(path, "userinfo.txt");
 
 			// 将其中的用户名和密码找到
