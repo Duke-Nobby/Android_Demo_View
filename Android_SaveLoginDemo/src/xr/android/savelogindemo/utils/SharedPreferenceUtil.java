@@ -24,6 +24,9 @@ public class SharedPreferenceUtil {
 			// 利用当前的Context对象 创建一个SharedPreference对象
 			// 第一个参数是保存信息文件的名称 第二个参数是文件的模式
 			SharedPreferences sharedPreferences = context.getSharedPreferences("SharedInfo", Context.MODE_PRIVATE);
+			// 也可以通过如下方式 创建SharedPreference对象
+			// SharedPreferences sharedPreferences =
+			// PreferenceManager.getDefaultSharedPreferences(context);
 
 			// 利用SharedPreference对象创建一个Editor对象
 			Editor edit = sharedPreferences.edit();
@@ -48,6 +51,9 @@ public class SharedPreferenceUtil {
 
 			// 创建SharedPreference对象
 			SharedPreferences sharedPreferences = context.getSharedPreferences("SharedInfo", Context.MODE_PRIVATE);
+			// 也可以通过如下方式 创建SharedPreference对象
+			// SharedPreferences sharedPreferences =
+			// PreferenceManager.getDefaultSharedPreferences(context);
 
 			// 获取对象中的信息
 			String username = sharedPreferences.getString("username", "");
