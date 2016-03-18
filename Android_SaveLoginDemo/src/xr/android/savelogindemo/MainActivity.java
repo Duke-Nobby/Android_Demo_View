@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
+import xr.android.savelogindemo.utils.SharedPreferenceUtil;
 import xr.android.savelogindemo.utils.UserInfo;
 import xr.android.savelogindemo.utils.UserInfo2;
 
@@ -36,7 +37,8 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
 
 		// 得到用户名和密码
 		// Map<String, String> map = UserInfo.getUserInfo(MainActivity.this);
-		Map<String, String> map = UserInfo2.getInfo(MainActivity.this);
+		// Map<String, String> map = UserInfo2.getInfo(MainActivity.this);
+		Map<String, String> map = SharedPreferenceUtil.SharedgetInfo(MainActivity.this);
 		if (map != null) {
 			String username = map.get("username");
 			String password = map.get("password");
@@ -100,7 +102,9 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
 			// 是否保存成功
 			// boolean result = UserInfo.saveUserInfo(MainActivity.this,
 			// username, password);
-			boolean result = UserInfo2.saveInfo(MainActivity.this, username, password);
+			// boolean result = UserInfo2.saveInfo(MainActivity.this, username,
+			// password);
+			boolean result = SharedPreferenceUtil.SharedsaveInfo(MainActivity.this, username, password);
 			if (result) {
 				Toast.makeText(MainActivity.this, "用户名密码保存成功", Toast.LENGTH_SHORT).show();
 				return true;
