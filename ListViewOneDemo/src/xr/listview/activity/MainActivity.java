@@ -1,4 +1,9 @@
 package xr.listview.activity;
+/*
+ * ListView的使用 和 注意事项
+ * 
+ * 
+ * */
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,8 +23,10 @@ public class MainActivity extends Activity {
 
 		listView = (ListView) findViewById(R.id.listView);
 
+		// 创建一个List适配器对象
 		XrListAdapter listAdapter = new XrListAdapter(thisContext);
 
+		// 让List绑定适配器
 		listView.setAdapter(listAdapter);
 
 	}
