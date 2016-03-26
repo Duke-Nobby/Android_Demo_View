@@ -2,6 +2,7 @@ package xr.updateuidemo;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.TextView;
 
 /**
@@ -13,6 +14,7 @@ import android.widget.TextView;
  */
 public class MainActivity extends Activity {
 	private TextView uiText;
+	private Handler handler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +38,25 @@ public class MainActivity extends Activity {
 					e.printStackTrace();
 				}
 
-				// 更新UI
-				uiText.setText("子线程中更新");
+				// 这种方式 也能更新UI 无论当前线程是否是主线程 都将在主线程中执行
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						// 更新UI
+						uiText.setText("子线程runOnUiThread中更新");
+					}
+				});
+
+				// 这种方式 也能更新 Handler 直接 post到主线程
+				handler.post(new Runnable() {
+
+					@Override
+					public void run() {
+						// 更新UI
+						uiText.setText("子线程post中更新");
+					}
+				});
 			}
 		}).start();
 	}
