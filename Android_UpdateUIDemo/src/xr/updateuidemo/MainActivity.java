@@ -29,6 +29,8 @@ public class MainActivity extends Activity {
 
 				try {
 					// 让子线程睡眠40ms (或者小于) 使得主线程的Activity并没有完全的加载进来 即可更新UI
+					// 审计机制 当Activity完全显示出来的时候 才会去审计能不能更新UI
+					// SurfaceView 和 Progress控件也能在子线程中更新UI
 					Thread.sleep(40);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
