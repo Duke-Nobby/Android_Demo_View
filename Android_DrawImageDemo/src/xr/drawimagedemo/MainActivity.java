@@ -1,11 +1,10 @@
 package xr.drawimagedemo;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -13,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.MotionEvent;
@@ -21,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 /**
  * @ClassName: MainActivity
@@ -35,6 +36,7 @@ public class MainActivity extends Activity implements OnClickListener, OnTouchLi
 	private Bitmap initBitmap, modelBitmap;
 	private Canvas canvas;
 	private Paint paint;
+	private int startX, startY, stopX, stopY;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +103,13 @@ public class MainActivity extends Activity implements OnClickListener, OnTouchLi
 		case R.id.button_save:
 			try {
 				// 保存到SD卡中
-				File file = new File(Environment.getExternalStorageDirectory().getPath(), "test.png");
+				File file = new File(Environment.getExternalStorageDirectory().getPath(), "test1.png");
 				FileOutputStream fos = new FileOutputStream(file);
 				// 第一个参数是压缩格式 第二个是压缩质量 PNG则忽视压缩质量 第三个参数为 输出流
 				modelBitmap.compress(CompressFormat.PNG, 100, fos);
+
+				Toast.makeText(MainActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
+
 				fos.close();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -116,25 +121,19 @@ public class MainActivity extends Activity implements OnClickListener, OnTouchLi
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		// 初始化起点坐标
-		int startX = 0;
-		int startY = 0;
-
 		// 得到触摸事件
 		int action = event.getAction();
 
 		switch (action) {
 		// 按下事件
 		case MotionEvent.ACTION_DOWN:
-			// 获取按下坐标
 			startX = (int) event.getX();
 			startY = (int) event.getY();
 			break;
 		// 移动事件
 		case MotionEvent.ACTION_MOVE:
-			// 获取停止的坐标
-			int stopX = (int) event.getX();
-			int stopY = (int) event.getY();
+			stopX = (int) event.getX();
+			stopY = (int) event.getY();
 
 			// 画线
 			canvas.drawLine(startX, startY, stopX, stopY, paint);
