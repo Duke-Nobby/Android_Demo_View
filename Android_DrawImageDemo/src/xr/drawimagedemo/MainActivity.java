@@ -121,10 +121,7 @@ public class MainActivity extends Activity implements OnClickListener, OnTouchLi
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		// 得到触摸事件
-		int action = event.getAction();
-
-		switch (action) {
+		switch (event.getAction()) {
 		// 按下事件
 		case MotionEvent.ACTION_DOWN:
 			startX = (int) event.getX();
