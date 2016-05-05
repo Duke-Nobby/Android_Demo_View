@@ -2,8 +2,8 @@ package xr.customswitch.view;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.Toast;
+import xr.customswitch.view.CustomSwitchView.OnSwitchStateUpdateListener;
 
 /**
  * @ClassName: MainActivity
@@ -22,11 +22,26 @@ public class MainActivity extends Activity {
 
 		buttonCSView = (CustomSwitchView) findViewById(R.id.csv_button);
 
+		// 设置背景图
 		buttonCSView.setBackgroundPic(R.drawable.switch_background);
 
+		// 设置前景图
 		buttonCSView.setForegroundPic(R.drawable.switch_foreground);
 
+		// 设置默认状态
 		buttonCSView.setSwitchState(true);
-	}
 
+		// 绑定监听事件
+		buttonCSView.setOnSwitchStateUpdateListener(new OnSwitchStateUpdateListener() {
+
+			@Override
+			public void onStateUpdate(boolean state) {
+				if (state) {
+					Toast.makeText(MainActivity.this, "打开", Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(MainActivity.this, "关闭", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+	}
 }

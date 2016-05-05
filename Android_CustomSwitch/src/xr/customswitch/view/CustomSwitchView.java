@@ -1,5 +1,6 @@
 package xr.customswitch.view;
 
+import android.R.bool;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +25,7 @@ public class CustomSwitchView extends View {
 	private boolean isTouchState = false;
 	private float currentPosition;// 当前开关位置
 	private int maxPosition;// 开关滑动最大位置
+	private OnSwitchStateUpdateListener onSwitchStateUpdateListener;
 
 	/* 注意必须实现四个构造函数 */
 
@@ -166,17 +168,40 @@ public class CustomSwitchView extends View {
 			float centerPosition = switchBackgroupBitmap.getWidth() / 2.0f;
 
 			// 如果开关当前位置大于背景位置的一半 显示关 否则显示开
-			if (currentPosition > centerPosition) {
-				isSwitchState = true;
-			} else {
-				isSwitchState = false;
+			boolean currentState = currentPosition > centerPosition;
+
+			// 如果当然状态不相同且绑定了监听对象 则执行监听方法
+			if (currentState != isSwitchState && onSwitchStateUpdateListener != null) {
+				onSwitchStateUpdateListener.onStateUpdate(currentState);
 			}
+
+			isSwitchState = currentState;
 			break;
 		}
 
 		// 重新调用onDraw方法，不断重绘界面
 		invalidate();
 		return true;
+	}
+
+	/**
+	 * @ClassName: OnSwitchStateUpdateListener
+	 * @Description:添加事件状态监听接口对象
+	 * @author: iamxiarui@foxmail.com
+	 * @date: 2016年5月5日 下午9:33:35
+	 */
+	public interface OnSwitchStateUpdateListener {
+		// 状态回调, 把当前状态传出去
+		void onStateUpdate(boolean state);
+	}
+
+	/**
+	 * @Title: setOnSwitchStateUpdateListener
+	 * @Description:状态监听方法
+	 * @return: void
+	 */
+	public void setOnSwitchStateUpdateListener(OnSwitchStateUpdateListener onSwitchStateUpdateListener) {
+		this.onSwitchStateUpdateListener = onSwitchStateUpdateListener;
 	}
 
 }
