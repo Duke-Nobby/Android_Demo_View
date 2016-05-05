@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -20,6 +21,9 @@ public class CustomSwitchView extends View {
 	private Bitmap switchForegroupBitmap;
 	private Paint paint;
 	private boolean isSwitchState = true;
+	private boolean isTouchState = false;
+	private float currentPosition;// 当前开关位置
+	private int maxPosition;// 开关滑动最大位置
 
 	/* 注意必须实现四个构造函数 */
 
@@ -111,13 +115,68 @@ public class CustomSwitchView extends View {
 		// 先绘制背景
 		canvas.drawBitmap(switchBackgroupBitmap, 0, 0, paint);
 
-		// 然后绘制开关
-		if (isSwitchState) {
-			int moveDistance = switchBackgroupBitmap.getWidth() - switchForegroupBitmap.getWidth();
-			canvas.drawBitmap(switchForegroupBitmap, moveDistance, 0, paint);
+		// 如果处于触摸状态
+		if (isTouchState) {
+			// 触摸位置在开关的中间位置
+			float movePosition = currentPosition - switchForegroupBitmap.getWidth() / 2.0f;
+			maxPosition = switchBackgroupBitmap.getWidth() - switchForegroupBitmap.getWidth();
+			// 限定开关滑动范围
+			if (movePosition < 0) {
+				movePosition = 0;
+			} else if (movePosition > maxPosition) {
+				movePosition = maxPosition;
+			}
+			// 绘制开关
+			canvas.drawBitmap(switchForegroupBitmap, movePosition, 0, paint);
 		} else {
-			canvas.drawBitmap(switchForegroupBitmap, 0, 0, paint);
+			// 绘制开关
+			if (isSwitchState) {
+				maxPosition = switchBackgroupBitmap.getWidth() - switchForegroupBitmap.getWidth();
+				canvas.drawBitmap(switchForegroupBitmap, maxPosition, 0, paint);
+			} else {
+				canvas.drawBitmap(switchForegroupBitmap, 0, 0, paint);
+			}
 		}
+	}
+
+	/**
+	 * @Title: onTouchEvent
+	 * @Description:触摸事件
+	 * @return: void
+	 */
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+
+		switch (event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			// 处于触摸状态
+			isTouchState = true;
+			currentPosition = event.getX();
+			break;
+
+		case MotionEvent.ACTION_MOVE:
+			currentPosition = event.getX();
+			break;
+
+		case MotionEvent.ACTION_UP:
+			// 触摸状态结束
+			isTouchState = false;
+			currentPosition = event.getX();
+			// 中间标志位置
+			float centerPosition = switchBackgroupBitmap.getWidth() / 2.0f;
+
+			// 如果开关当前位置大于背景位置的一半 显示关 否则显示开
+			if (currentPosition > centerPosition) {
+				isSwitchState = true;
+			} else {
+				isSwitchState = false;
+			}
+			break;
+		}
+
+		// 重新调用onDraw方法，不断重绘界面
+		invalidate();
+		return true;
 	}
 
 }

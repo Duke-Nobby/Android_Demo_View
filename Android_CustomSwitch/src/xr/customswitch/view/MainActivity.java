@@ -25,8 +25,8 @@ public class MainActivity extends Activity {
 		buttonCSView.setBackgroundPic(R.drawable.switch_background);
 
 		buttonCSView.setForegroundPic(R.drawable.switch_foreground);
-		
-		buttonCSView.setSwitchState(false);
+
+		buttonCSView.setSwitchState(true);
 	}
 
 }
