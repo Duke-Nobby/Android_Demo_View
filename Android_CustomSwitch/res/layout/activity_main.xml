@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:customswitch="http://schemas.android.com/apk/res/xr.customswitch.view"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,6 +9,9 @@
         android:id="@+id/csv_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"
+        customswitch:switch_background="@drawable/switch_background"
+        customswitch:switch_foreground="@drawable/switch_foreground"
+        customswitch:switch_state="true" />
 
 </RelativeLayout>

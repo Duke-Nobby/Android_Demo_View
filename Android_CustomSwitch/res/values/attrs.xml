@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 自定义属性 -->
+    <declare-styleable name="CustomSwitchView">
+        <attr name="switch_background" format="reference" />
+        <attr name="switch_foreground" format="reference" />
+        <attr name="switch_state" format="boolean" />
+    </declare-styleable>
+
+</resources>

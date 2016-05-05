@@ -43,6 +43,16 @@ public class CustomSwitchView extends View {
 	public CustomSwitchView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		initView();
+
+		// 当自定义属性后，可以在此方法中设置相关属性
+		String namespace = "http://schemas.android.com/apk/res/xr.customswitch.view";
+
+		int switchBackgroundResource = attrs.getAttributeResourceValue(namespace, "switch_background", -1);
+		int switchForegroundResource = attrs.getAttributeResourceValue(namespace, "switch_foreground", -1);
+		isSwitchState = attrs.getAttributeBooleanValue(namespace, "switch_state", false);
+
+		setSwitchBackgroundResource(switchBackgroundResource);
+		setSwitchForegroundResource(switchForegroundResource);
 	}
 
 	/**
@@ -86,6 +96,24 @@ public class CustomSwitchView extends View {
 	 */
 	public void setForegroundPic(int switchForeground) {
 		switchForegroupBitmap = BitmapFactory.decodeResource(getResources(), switchForeground);
+	}
+
+	/**
+	 * @Title: setSwitchBackgroundResource
+	 * @Description:自定义属性设置背景
+	 * @return: void
+	 */
+	private void setSwitchBackgroundResource(int switchBackgroundResource) {
+		switchBackgroupBitmap = BitmapFactory.decodeResource(getResources(), switchBackgroundResource);
+	}
+
+	/**
+	 * @Title: setSwitchForegroundResource
+	 * @Description:自定义属性设置前景
+	 * @return: void
+	 */
+	private void setSwitchForegroundResource(int switchForegroundResource) {
+		switchForegroupBitmap = BitmapFactory.decodeResource(getResources(), switchForegroundResource);
 	}
 
 	/**
