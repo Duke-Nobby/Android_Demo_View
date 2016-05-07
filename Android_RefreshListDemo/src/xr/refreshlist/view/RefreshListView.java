@@ -8,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -20,7 +22,7 @@ import xr.refreshlist.R;
  * @author: iamxiarui@foxmail.com
  * @date: 2016年5月7日 下午3:08:26
  */
-public class RefreshListView extends ListView {
+public class RefreshListView extends ListView implements OnScrollListener {
 
 	private View headerView;
 	private float downHeadY;// 下拉位置
@@ -38,6 +40,9 @@ public class RefreshListView extends ListView {
 	private TextView refreshText, refreshtimeText;
 	private ProgressBar refreshProgress;
 	private OnRefreshListener onRefreshListener;
+	private View footerView;
+	private int footerViewHeight;
+	private boolean isLoadingMore; // 正在加载状态
 
 	public RefreshListView(Context context) {
 		super(context);
@@ -68,11 +73,14 @@ public class RefreshListView extends ListView {
 		initHeaderView();
 		initHeaderAnimation();
 		initFooterView();
+
+		// 添加滚动监听
+		setOnScrollListener(this);
 	}
 
 	/**
 	 * @Title: initHeaderView
-	 * @Description:初始化List的头文件
+	 * @Description:初始化List的头布局
 	 * @return: void
 	 */
 	private void initHeaderView() {
@@ -92,10 +100,18 @@ public class RefreshListView extends ListView {
 
 	/**
 	 * @Title: initFooterView
-	 * @Description:初始化List的脚文件
+	 * @Description:初始化List的底布局
 	 * @return: void
 	 */
 	private void initFooterView() {
+		footerView = View.inflate(getContext(), R.layout.layout_list_footer, null);
+
+		// 按照设置的该规则测量控件的高度
+		footerView.measure(0, 0);
+		footerViewHeight = footerView.getMeasuredHeight();
+		// 设置为负值，相当于隐藏
+		footerView.setPadding(0, -footerViewHeight, 0, 0);
+		addFooterView(footerView);
 
 	}
 
@@ -115,28 +131,34 @@ public class RefreshListView extends ListView {
 		case MotionEvent.ACTION_MOVE:
 			// 得到下拉距离
 			moveHeadY = ev.getY();
+			// 如果正在刷新不做处理
+			if (currentState == REFRESHING) {
+				return super.onTouchEvent(ev);
+			}
 
 			// 下拉偏移量
 			float offset = moveHeadY - downHeadY;
 
 			// 如果是下拉 且 是从第一个位置开始
-			if (offset >= 0 && getFirstVisiblePosition() == 0) {
+			if (offset > 0 && getFirstVisiblePosition() == 0) {
 				// padding的大小根据高度和下拉偏移量决定
 				paddingTop = (int) (-headerViewHeight + offset);
 				// 重新设置paddind
 				headerView.setPadding(0, paddingTop, 0, 0);
-			}
 
-			// 切换状态
-			if (paddingTop >= 0 && currentState != RELEASE_REFRESH) { // 刷新头完全显示
-				// 释放刷新状态
-				currentState = RELEASE_REFRESH;
-				updateHeaderView();
+				// 切换状态
+				if (paddingTop >= 0 && currentState != RELEASE_REFRESH) { // 刷新头完全显示
+					// 释放刷新状态
+					currentState = RELEASE_REFRESH;
+					updateHeaderView();
 
-			} else if (paddingTop < 0 && currentState != PULL_TO_REFRESH) {// 刷新头不完全显示
-				// 下拉刷新状态
-				currentState = PULL_TO_REFRESH;
-				updateHeaderView();
+				} else if (paddingTop < 0 && currentState != PULL_TO_REFRESH) {// 刷新头不完全显示
+					// 下拉刷新状态
+					currentState = PULL_TO_REFRESH;
+					updateHeaderView();
+				}
+
+				return true; // 当前事件被我们处理并消费
 			}
 
 			break;
@@ -154,7 +176,8 @@ public class RefreshListView extends ListView {
 
 			break;
 		}
-		return true;
+		// 必须返回父类方法 因为存在两个触摸事件
+		return super.onTouchEvent(ev);
 	}
 
 	/**
@@ -247,13 +270,20 @@ public class RefreshListView extends ListView {
 	 * @return: void
 	 */
 	public void onRefreshComplete() {
-		// 下拉刷新
-		currentState = PULL_TO_REFRESH;
-		refreshText.setText("下拉刷新"); // 切换文本
-		headerView.setPadding(0, -headerViewHeight, 0, 0);// 隐藏头布局
-		refreshProgress.setVisibility(View.INVISIBLE);
-		arrowImage.setVisibility(View.VISIBLE);
-		refreshtimeText.setText("最后刷新时间: " + getTime());
+		// 如果正在加载更多
+		if (isLoadingMore) {
+			footerView.setPadding(0, -footerViewHeight, 0, 0);
+			isLoadingMore = false;
+
+		} else {
+			// 下拉刷新
+			currentState = PULL_TO_REFRESH;
+			refreshText.setText("下拉刷新"); // 切换文本
+			headerView.setPadding(0, -headerViewHeight, 0, 0);// 隐藏头布局
+			refreshProgress.setVisibility(View.INVISIBLE);
+			arrowImage.setVisibility(View.VISIBLE);
+			refreshtimeText.setText("最后刷新时间: " + getTime());
+		}
 	}
 
 	/**
@@ -265,6 +295,38 @@ public class RefreshListView extends ListView {
 		long currentTimeMillis = System.currentTimeMillis();
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return format.format(currentTimeMillis);
+	}
+
+	/**
+	 * @Title: onScrollStateChanged
+	 * @Description:列表滚动监听
+	 * @return: void
+	 */
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		// 已经在加载更多
+		if (isLoadingMore) {
+			return;
+		}
+		// 最新状态是空闲状态, 并且当前界面显示了所有数据的最后一条. 加载更多
+		if (scrollState == SCROLL_STATE_IDLE && getLastVisiblePosition() >= (getCount() - 1)) {
+			// 正在加载
+			isLoadingMore = true;
+			// 设置底布局显示
+			footerView.setPadding(0, 0, 0, 0);
+			// 跳转到最后一条, 使其显示出加载更多
+			setSelection(getCount());
+
+			if (onRefreshListener != null) {
+				onRefreshListener.onLoadMore();
+			}
+		}
+
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
 	}
 
 }

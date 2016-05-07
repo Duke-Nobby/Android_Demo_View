@@ -65,7 +65,28 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onLoadMore() {
+				new Thread(new Runnable() {
 
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(2000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						dataList.add("这是加载出来的数据 1");
+						dataList.add("这是加载出来的数据 2");
+						dataList.add("这是加载出来的数据 3");
+
+						runOnUiThread(new Runnable() {
+							public void run() {
+								RefreshListAdapter.notifyDataSetChanged();
+								refreshListView.onRefreshComplete();
+							}
+						});
+
+					}
+				}).start();
 			}
 		});
 
