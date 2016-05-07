@@ -53,6 +53,11 @@ public class RefreshListView extends ListView {
 	 */
 	private void initHeaderView() {
 		headerView = View.inflate(getContext(), R.layout.layout_list_header, null);
+		// 按照设置的该规则测量控件的高度
+		headerView.measure(0, 0);
+		int headerViewHeight = headerView.getMeasuredHeight();
+		// 设置为负值，相当于隐藏
+		headerView.setPadding(0, -headerViewHeight, 0, 0);
 		addHeaderView(headerView);
 	}
 
