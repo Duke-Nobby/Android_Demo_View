@@ -21,10 +21,12 @@ public class CustomSwitchView extends View {
 	private Bitmap switchBackgroupBitmap;
 	private Bitmap switchForegroupBitmap;
 	private Paint paint;
-	private boolean isSwitchState = true;
-	private boolean isTouchState = false;
+
+	private boolean isSwitchState = true;// 开关状态
+	private boolean isTouchState = false;// 触摸状态
 	private float currentPosition;// 当前开关位置
 	private int maxPosition;// 开关滑动最大位置
+
 	private OnSwitchStateUpdateListener onSwitchStateUpdateListener;
 
 	/* 注意必须实现四个构造函数 */
@@ -150,7 +152,7 @@ public class CustomSwitchView extends View {
 			// 触摸位置在开关的中间位置
 			float movePosition = currentPosition - switchForegroupBitmap.getWidth() / 2.0f;
 			maxPosition = switchBackgroupBitmap.getWidth() - switchForegroupBitmap.getWidth();
-			// 限定开关滑动范围
+			// 限定开关滑动范围 只能在 0 - maxPosition范围内
 			if (movePosition < 0) {
 				movePosition = 0;
 			} else if (movePosition > maxPosition) {
@@ -158,12 +160,15 @@ public class CustomSwitchView extends View {
 			}
 			// 绘制开关
 			canvas.drawBitmap(switchForegroupBitmap, movePosition, 0, paint);
-		} else {
-			// 绘制开关
+		}
+		// 直接绘制开关
+		else {
+			// 如果是真，直接将开关滑块置为开启状态
 			if (isSwitchState) {
 				maxPosition = switchBackgroupBitmap.getWidth() - switchForegroupBitmap.getWidth();
 				canvas.drawBitmap(switchForegroupBitmap, maxPosition, 0, paint);
 			} else {
+				// 否则将开关置为关闭状态
 				canvas.drawBitmap(switchForegroupBitmap, 0, 0, paint);
 			}
 		}
@@ -181,6 +186,7 @@ public class CustomSwitchView extends View {
 		case MotionEvent.ACTION_DOWN:
 			// 处于触摸状态
 			isTouchState = true;
+			// 得到位置坐标
 			currentPosition = event.getX();
 			break;
 
@@ -202,7 +208,7 @@ public class CustomSwitchView extends View {
 			if (currentState != isSwitchState && onSwitchStateUpdateListener != null) {
 				onSwitchStateUpdateListener.onStateUpdate(currentState);
 			}
-
+			// 当前状态置为开关状态
 			isSwitchState = currentState;
 			break;
 		}
