@@ -1,5 +1,7 @@
 package xr.refreshlist.view;
 
+import java.text.SimpleDateFormat;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -35,6 +37,7 @@ public class RefreshListView extends ListView {
 	private ImageView arrowImage;
 	private TextView refreshText, refreshtimeText;
 	private ProgressBar refreshProgress;
+	private OnRefreshListener onRefreshListener;
 
 	public RefreshListView(Context context) {
 		super(context);
@@ -175,9 +178,16 @@ public class RefreshListView extends ListView {
 		case REFRESHING:
 			// 刷新中
 			arrowImage.clearAnimation();
+			// 箭头不可见
 			arrowImage.setVisibility(View.INVISIBLE);
+			// 进度条可见
 			refreshProgress.setVisibility(View.VISIBLE);
 			refreshText.setText("正在刷新中...");
+
+			// 如果监听者绑定了对象
+			if (onRefreshListener != null) {
+				onRefreshListener.onRefresh();
+			}
 
 			break;
 		}
@@ -206,6 +216,55 @@ public class RefreshListView extends ListView {
 		// 动画停留在结束位置
 		pulldownRotate.setFillAfter(true);
 
+	}
+
+	/**
+	 * @ClassName: OnRefreshListener
+	 * @Description:刷新监听者的接口
+	 * @author: iamxiarui@foxmail.com
+	 * @date: 2016年5月7日 下午7:51:09
+	 */
+	public interface OnRefreshListener {
+		// 下拉刷新
+		void onRefresh();
+
+		// 加载更多
+		void onLoadMore();
+	}
+
+	/**
+	 * @Title: setOnRefreshListener
+	 * @Description:刷新监听事件
+	 * @return: void
+	 */
+	public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
+		this.onRefreshListener = onRefreshListener;
+	}
+
+	/**
+	 * @Title: onRefreshComplete
+	 * @Description:刷新完成恢复界面
+	 * @return: void
+	 */
+	public void onRefreshComplete() {
+		// 下拉刷新
+		currentState = PULL_TO_REFRESH;
+		refreshText.setText("下拉刷新"); // 切换文本
+		headerView.setPadding(0, -headerViewHeight, 0, 0);// 隐藏头布局
+		refreshProgress.setVisibility(View.INVISIBLE);
+		arrowImage.setVisibility(View.VISIBLE);
+		refreshtimeText.setText("最后刷新时间: " + getTime());
+	}
+
+	/**
+	 * @Title: getTime
+	 * @Description:得到系统时间
+	 * @return: String
+	 */
+	private String getTime() {
+		long currentTimeMillis = System.currentTimeMillis();
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return format.format(currentTimeMillis);
 	}
 
 }
