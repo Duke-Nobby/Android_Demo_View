@@ -25,6 +25,7 @@ public class SlideMenuView extends ViewGroup {
 	private int currentMode = MAIN_MODE;
 
 	private Scroller scroller;
+	private float downStartY;
 
 	// 必须实现其构造函数
 	public SlideMenuView(Context context) {
@@ -145,18 +146,48 @@ public class SlideMenuView extends ViewGroup {
 
 			// 如果滑动的距离大于菜单的一半 直接显示菜单
 			if (getScrollX() < leftCenter) {
-				currentMode = MAIN_MODE;
+				currentMode = MENU_MODE;
 				showMenuView();
-				scrollTo(-getChildAt(0).getMeasuredWidth(), 0);
 			} else {
 				// 否则返回主菜单
-				currentMode = MENU_MODE;
+				currentMode = MAIN_MODE;
 				showMenuView();
 			}
 
 			break;
 		}
 		return true;
+	}
+
+	/**
+	 * @Title: onInterceptTouchEvent
+	 * @Description:触摸拦截事件
+	 * @param ev
+	 * @return
+	 */
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+		switch (ev.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			downStartX = ev.getX();
+			downStartY = ev.getY();
+			break;
+		case MotionEvent.ACTION_MOVE:
+			// 分别得到移动的X，Y偏移量
+			float xOffset = Math.abs(ev.getX() - downStartX);
+			float yOffset = Math.abs(ev.getY() - downStartY);
+
+			// 水平方向超出一定距离时,才拦截
+			if (xOffset > yOffset && xOffset > 5) {
+				// 拦截此次触摸事件, 界面的滚动
+				return true;
+			}
+
+			break;
+
+		}
+		return super.onInterceptTouchEvent(ev);
 	}
 
 	/**
