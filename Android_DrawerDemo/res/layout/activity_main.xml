@@ -5,6 +5,7 @@
     tools:context="xr.drawerdemo.MainActivity" >
 
     <xr.drawerdemo.view.SlideMenuView
+        android:id="@+id/smv"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
