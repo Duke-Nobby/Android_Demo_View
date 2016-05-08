@@ -3,6 +3,7 @@ package xr.drawerdemo.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,6 +14,10 @@ import android.view.ViewGroup;
  * @date: 2016年5月8日 上午10:35:23
  */
 public class SlideMenuView extends ViewGroup {
+
+	private float downStartX;
+	private float moveEndX;
+	private int scrollX;
 
 	// 必须实现其构造函数
 	public SlideMenuView(Context context) {
@@ -72,6 +77,65 @@ public class SlideMenuView extends ViewGroup {
 		// 主面板所在位置
 		getChildAt(1).layout(l, t, r, b);
 
+	}
+
+	/**
+	 * @Title: onTouchEvent
+	 * @Description:滑动触摸事件
+	 * @param event：事件类型
+	 * @return
+	 */
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+
+		switch (event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			// 按下位置的X值
+			downStartX = event.getX();
+
+			break;
+		case MotionEvent.ACTION_MOVE:
+			// 移动结束位置的X值
+			moveEndX = event.getX();
+
+			// 两者的差值为滑动距离
+			scrollX = (int) (downStartX - moveEndX);
+
+			// 提前计算将要移动距离
+			int willScrollX = getScrollX() + scrollX;
+
+			// 设置滑动边界
+			if (willScrollX < -getChildAt(0).getMeasuredWidth()) {
+				// 如果滑动超过左边界 直接滑动到左边界
+				scrollTo(-getChildAt(0).getMeasuredWidth(), 0);
+			} else if (willScrollX > 0) {
+				// 如果滑动超过右边界 直接滑动到右边界
+				scrollTo(0, 0);
+			} else {
+				// 如果没有超过边界 直接设置滚动
+				scrollBy(scrollX, 0);
+			}
+
+			// 移动结束位置作为下一次滑动开始位置
+			downStartX = moveEndX;
+
+			break;
+		case MotionEvent.ACTION_UP:
+
+			// 左边菜单栏的中间位置
+			int leftCenter = (int) (-getChildAt(0).getMeasuredWidth() / 2.0f);
+
+			// 如果滑动的距离大于菜单的一半 直接显示菜单
+			if (getScrollX() < leftCenter) {
+				scrollTo(-getChildAt(0).getMeasuredWidth(), 0);
+			} else {
+				// 否则返回主菜单
+				scrollTo(0, 0);
+			}
+
+			break;
+		}
+		return true;
 	}
 
 }
