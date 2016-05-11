@@ -29,7 +29,7 @@ public class CustomSwitchView extends View {
 
 	private OnSwitchStateUpdateListener onSwitchStateUpdateListener;
 
-	/* 注意必须实现四个构造函数 */
+	/* 注意要按照需求实现对应构造函数 ，这里只是说明各个构造函数的区别*/
 
 	/**
 	 * @Description:用于代码创建控件
