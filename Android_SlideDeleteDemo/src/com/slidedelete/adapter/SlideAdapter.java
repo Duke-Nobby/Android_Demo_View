@@ -50,7 +50,7 @@ public class SlideAdapter extends BaseAdapter {
 		if (convertView == null) {
 			convertView = View.inflate(context, R.layout.item_list, null);
 		}
-		ViewHolder viewHolder = ViewHolder.getViewHolder(convertView);
+		final ViewHolder viewHolder = ViewHolder.getViewHolder(convertView);
 
 		viewHolder.nameText.setText(list.get(position));
 
@@ -76,7 +76,7 @@ public class SlideAdapter extends BaseAdapter {
 				// 先删除当前条目
 				list.remove(position);
 				// 在将当前条目增加到列表顶部
-				list.add(0, "name - " + position);
+				list.add(0,viewHolder.nameText.getText().toString());
 				// 刷新
 				notifyDataSetChanged();
 				// 关闭滑动
