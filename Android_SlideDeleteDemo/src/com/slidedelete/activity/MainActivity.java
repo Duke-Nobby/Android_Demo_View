@@ -1,34 +1,64 @@
 package com.slidedelete.activity;
 
+import java.util.ArrayList;
+
+import com.slidedelete.adapter.SlideAdapter;
+
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.ListView;
 
+/**
+ * @ClassName: MainActivity
+ * @Description:列表滑动删除条目的实现
+ * @author: iamxiarui@foxmail.com
+ * @date: 2016年5月19日 下午4:11:33
+ */
 public class MainActivity extends Activity {
+
+	private ListView mainListView;
+	private ArrayList<String> list = new ArrayList<String>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		initView();
+
+		initData();
+
+		initAdapter();
+
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	/**
+	 * @Title: initView
+	 * @Description:初始化View
+	 * @return: void
+	 */
+	public void initView() {
+		mainListView = (ListView) findViewById(R.id.lv_main);
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
+	/**
+	 * @Title: initData
+	 * @Description:初始化数据
+	 * @return: void
+	 */
+	public void initData() {
+		for (int i = 0; i < 30; i++) {
+			list.add("name - " + i);
 		}
-		return super.onOptionsItemSelected(item);
 	}
+
+	/**
+	 * @Title: initAdapter
+	 * @Description:绑定适配器
+	 * @return: void
+	 */
+	public void initAdapter() {
+		mainListView.setAdapter(new SlideAdapter(this, list));
+	}
+
 }
