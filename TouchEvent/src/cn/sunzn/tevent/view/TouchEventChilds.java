@@ -25,8 +25,8 @@ public class TouchEventChilds extends LinearLayout {
 
 	public boolean dispatchTouchEvent(MotionEvent ev) {
 		Log.e("sunzn", "TouchEventChilds | dispatchTouchEvent --> " + TouchEventUtil.getTouchAction(ev.getAction()));
-		// return super.dispatchTouchEvent(ev);
-		return true;
+		return super.dispatchTouchEvent(ev);
+		// return true;
 	}
 
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
