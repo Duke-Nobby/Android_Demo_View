@@ -1,5 +1,7 @@
 package com.slidedelete.view;
 
+import com.slidedelete.utils.SlideLayoutManager;
+
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
@@ -21,6 +23,16 @@ public class SlideLayout extends FrameLayout {
 	private View deleteView;
 	private int itemWidth, itemHeight, deleteWidth, deleteHeight;
 	private ViewDragHelper viewDragHelper;
+	private float downX, downY;
+
+	enum SlideState {
+		Open, Close;
+	}
+
+	// 当前默认是关闭状态
+	private SlideState currentState = SlideState.Close;
+
+	private OnSlideStateChangeListener listener;
 
 	public SlideLayout(Context context) {
 		super(context);
@@ -96,6 +108,34 @@ public class SlideLayout extends FrameLayout {
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		// 如果当前有打开的，则下面的逻辑不能执行
+		if (!SlideLayoutManager.getInstance().isShouldSlide(this)) {
+			requestDisallowInterceptTouchEvent(true);
+			return true;
+		}
+
+		switch (event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			downX = event.getX();
+			downY = event.getY();
+			break;
+		case MotionEvent.ACTION_MOVE:
+			float moveX = event.getX();
+			float moveY = event.getY();
+			float offsetX = moveX - downX;
+			float offsetY = moveY - downY;
+			if (Math.abs(offsetX) > Math.abs(offsetY)) {
+				// 表示移动是偏向于水平方向，那么应该SlideLayout应该处理，请求ListView不要拦截
+				requestDisallowInterceptTouchEvent(true);
+			}
+			// 更新downX，downY
+			downX = moveX;
+			downY = moveY;
+			break;
+		case MotionEvent.ACTION_UP:
+
+			break;
+		}
 		viewDragHelper.processTouchEvent(event);
 		return true;
 	}
@@ -108,7 +148,16 @@ public class SlideLayout extends FrameLayout {
 	 */
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		return viewDragHelper.shouldInterceptTouchEvent(ev);
+		boolean result = viewDragHelper.shouldInterceptTouchEvent(ev);
+
+		// 如果当前有打开的，则需要直接拦截，交给onTouch处理
+		if (!SlideLayoutManager.getInstance().isShouldSlide(this)) {
+			// 先关闭已经打开的layout
+			SlideLayoutManager.getInstance().closeCurrentLayout();
+			result = true;
+		}
+
+		return result;
 	}
 
 	// 定义回调对象
@@ -159,6 +208,30 @@ public class SlideLayout extends FrameLayout {
 				itemView.layout(itemView.getLeft() + dx, itemView.getTop() + dy, itemView.getRight() + dx,
 						itemView.getBottom() + dy);
 			}
+
+			// 判断开和关闭的逻辑
+			if (itemView.getLeft() == 0 && currentState != SlideState.Close) {
+				// 说明应该将state更改为关闭
+				currentState = SlideState.Close;
+
+				// 回调接口关闭的方法
+				if (listener != null) {
+					listener.onClose();
+				}
+
+				// 说明当前的SwipeLayout已经关闭，需要让Manager清空
+				SlideLayoutManager.getInstance().clearCurrentLayout();
+			} else if (itemView.getLeft() == -deleteWidth && currentState != SlideState.Open) {
+				// 说明应该将state更改为开
+				currentState = SlideState.Open;
+
+				// 回调接口打开的方法
+				if (listener != null) {
+					listener.onOpen();
+				}
+				// 当前的Swipelayout已经打开，需要让Manager记录
+				SlideLayoutManager.getInstance().setSlideLayout(SlideLayout.this);
+			}
 		};
 
 		public void onViewReleased(View releasedChild, float xvel, float yvel) {
@@ -200,6 +273,22 @@ public class SlideLayout extends FrameLayout {
 		if (viewDragHelper.continueSettling(true)) {
 			ViewCompat.postInvalidateOnAnimation(SlideLayout.this);
 		}
+	}
+
+	public void setOnSlideStateChangeListener(OnSlideStateChangeListener listener) {
+		this.listener = listener;
+	}
+
+	/**
+	 * @ClassName: OnSlideStateChangeListener
+	 * @Description:监听接口
+	 * @author: iamxiarui@foxmail.com
+	 * @date: 2016年5月19日 下午6:57:11
+	 */
+	public interface OnSlideStateChangeListener {
+		void onOpen();
+
+		void onClose();
 	}
 
 }
